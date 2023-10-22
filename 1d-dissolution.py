@@ -21,35 +21,6 @@ config.read("config.ini")
 now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 writer = SummaryWriter(log_dir="runs/" + now)
 
-"""
-def pc.make_lhs_sampling_data(mins, maxs, num):
-    lb = np.array(mins)
-    ub = np.array(maxs)
-    if not len(lb) == len(ub):
-        raise ValueError(f"mins and maxs should have the same length.")
-    return lhs(len(lb), int(num)) * (ub - lb) + lb
-
-
-def pc.make_uniform_grid_data(mins, maxs, num):
-    each_col = [np.linspace(mins[i], maxs[i], num[i])[1:-1]
-                for i in range(len(mins))]
-    return np.stack(np.meshgrid(*each_col), axis=-1).reshape(-1, len(mins))
-
-
-def pc.make_uniform_grid_data_transition(mins, maxs, num):
-    each_col = [np.linspace(mins[i], maxs[i], num[i])[1:-1]
-                for i in range(len(mins))]
-    distances = [(maxs[i] - mins[i]) / (num[i] - 1) for i in range(len(mins))]
-    shift = [np.random.uniform(-distances[i], distances[i], 1)
-             for i in range(len(distances))]
-    shift = np.concatenate(shift, axis=0)
-    each_col = [each_col[i] + shift[i] for i in range(len(each_col))]
-
-    # each_col_cliped = [np.clip(each_col[i] + shift[i], mins[i], maxs[i]) for i in range(len(each_col))]
-    return np.stack(np.meshgrid(*each_col), axis=-1).reshape(-1, len(mins))
-
-"""
-
 
 class GeoTimeSampler:
     def __init__(
