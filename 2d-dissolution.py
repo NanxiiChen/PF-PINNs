@@ -109,6 +109,22 @@ class GeoTimeSampler:
                                          num=bc_num)
         xyts = xyts[xyts[:, 0] ** 2 + xyts[:, 1] ** 2 <= 0.025 ** 2]
 
+        # xts = func(mins=[self.geo_span[0][0], self.time_span[0]],
+        #            maxs=[self.geo_span[0][1], self.time_span[1]],
+        #            num=bc_num)
+        # top = np.hstack([xts[:, 0:1], np.full(
+        #     xts.shape[0], self.geo_span[1][1]).reshape(-1, 1), xts[:, 1:2]])  # 顶边
+
+        # yts = func(mins=[self.geo_span[1][0], self.time_span[0]],
+        #            maxs=[self.geo_span[1][1], self.time_span[1]],
+        #            num=bc_num)
+        # left = np.hstack([np.full(yts.shape[0], self.geo_span[0]
+        #                  [0]).reshape(-1, 1), yts[:, 0:1], yts[:, 1:2]])  # 左边
+        # right = np.hstack([np.full(yts.shape[0], self.geo_span[0]
+        #                   [1]).reshape(-1, 1), yts[:, 0:1], yts[:, 1:2]])  # 右边
+
+        # xyts = np.vstack([xyts, top])
+
         return torch.from_numpy(xyts).float().requires_grad_(True)
         # return torch.from_numpy(xyts).float().requires_grad_(True),\
         #     torch.from_numpy(xyts2).float().requires_grad_(True)
@@ -208,8 +224,10 @@ def ic_func(xts):
 def bc_func(xts):
     r = torch.sqrt(xts[:, 0:1]**2 + xts[:, 1:2]**2).detach()
     with torch.no_grad():
-        phi = (r > 0.05).float()
-        c = phi.detach()
+        phi = (1 + torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
+                              torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) * 1e-4)) / 2
+        h_phi = -2 * phi**3 + 3 * phi**2
+        c = h_phi * CSE
     return torch.cat([phi, c], dim=1)
 
 
@@ -237,6 +255,9 @@ for epoch in range(EPOCHS):
         data = torch.cat([geotime, anchors],
                          dim=0).requires_grad_(True)
 
+        # shuffle
+        data = data[torch.randperm(len(data))]
+
         bcdata = bcdata.to(net.device)
         icdata = icdata.to(net.device)
 
@@ -244,6 +265,19 @@ for epoch in range(EPOCHS):
         plt.savefig(f"./runs/{now}/sampling-{epoch}.png",
                     bbox_inches='tight', dpi=300)
         writer.add_figure("sampling", fig, epoch)
+
+    FORWARD_BATCH_SIZE = config.getint("TRAIN", "FORWARD_BATCH_SIZE")
+
+    # ac_residual = torch.zeros(len(data), 2).to(net.device)
+    # ch_residual = torch.zeros(len(data), 2).to(net.device)
+    # for i in range(0, len(data), FORWARD_BATCH_SIZE):
+    #     if i + FORWARD_BATCH_SIZE < len(data):
+    #         data_batch = data[i:i+FORWARD_BATCH_SIZE]
+    #         ac_residual[i:i+FORWARD_BATCH_SIZE], \
+    #             ch_residual[i:i+FORWARD_BATCH_SIZE] = net.net_pde(data_batch)
+    #     else:
+    #         data_batch = data[i:]
+    #         ac_residual[i:], ch_residual[i:] = net.net_pde(data_batch)
 
     ac_residual, ch_residual = net.net_pde(data)
     ac_loss = criteria(ac_residual, torch.zeros_like(ac_residual))

@@ -186,7 +186,7 @@ def bc_func(xts):
 def ic_func(xts):
     with torch.no_grad():
         phi = (1 - torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
-                              torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (xts[:, 0:1] - 0.30) * 1e-4)) / 2
+                              torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (xts[:, 0:1] - 0.30) / GEO_COEF)) / 2
         h_phi = -2 * phi**3 + 3 * phi**2
         c = h_phi * CSE + (1 - h_phi) * 0.0
     return torch.cat([phi, c], dim=1)
@@ -215,6 +215,8 @@ for epoch in range(EPOCHS):
         net.train()
         data = torch.cat([anchors, geotime],
                          dim=0).requires_grad_(True)
+
+        data = data[torch.randperm(len(data))]
 
         bcdata = bcdata.to(net.device)
         icdata = icdata.to(net.device)
