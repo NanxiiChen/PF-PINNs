@@ -173,8 +173,8 @@ MESH_POINTS = np.load(config.get("TRAIN", "MESH_POINTS").strip('"')) * GEO_COEF
 def ic_func(xts):
     r = torch.sqrt(xts[:, 0:1]**2 + xts[:, 1:2]**2).detach()
     with torch.no_grad():
-        phi = (1 + torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
-                              torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) * 1e-4)) / 2
+        phi = 1 - (1 - torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
+                                  torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) * 1e-4)) / 2
         h_phi = -2 * phi**3 + 3 * phi**2
         c = h_phi * CSE
     return torch.cat([phi, c], dim=1)
@@ -183,8 +183,8 @@ def ic_func(xts):
 def bc_func(xts):
     r = torch.sqrt(xts[:, 0:1]**2 + xts[:, 1:2]**2).detach()
     with torch.no_grad():
-        phi = (1 + torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
-                              torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) * 1e-4)) / 2
+        phi = 1 - (1 - torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
+                                  torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) * 1e-4)) / 2
         h_phi = -2 * phi**3 + 3 * phi**2
         c = h_phi * CSE
     return torch.cat([phi, c], dim=1)
