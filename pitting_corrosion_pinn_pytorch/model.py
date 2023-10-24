@@ -215,7 +215,7 @@ class PittingCorrosionNN(torch.nn.Module):
                     sol = self.net_u(geotime).detach().cpu().numpy()
                 axes[idx, 0].scatter(mesh_points[:, 0], mesh_points[:, 1], c=sol[:, 0],
                                      cmap="coolwarm", label="phi", vmin=0, vmax=1)
-                axes[idx, 0].set(xlim=(-1, 1), ylim=(0, 1), aspect="equal",
+                axes[idx, 0].set(xlim=GEO_SPAN[0], ylim=GEO_SPAN[1], aspect="equal",
                                  xlabel="x" + geo_label_suffix, ylabel="y" + geo_label_suffix,
                                  title="pred t = " + str(round(tic, 2)))
 
@@ -223,7 +223,7 @@ class PittingCorrosionNN(torch.nn.Module):
                 diff = np.abs(sol[:, 0] - truth[:, 0])
                 axes[idx, 1].scatter(mesh_points[:, 0], mesh_points[:, 1], c=diff,
                                      cmap="coolwarm", label="error", vmin=0, vmax=1)
-                axes[idx, 1].set(xlim=(-1, 1), ylim=(0, 1), aspect="equal",
+                axes[idx, 1].set(xlim=GEO_SPAN[0], ylim=GEO_SPAN[1], aspect="equal",
                                  xlabel="x" + geo_label_suffix, ylabel="y" + geo_label_suffix,
                                  title="error t = " + str(round(tic, 2)))
                 diffs.append(diff)

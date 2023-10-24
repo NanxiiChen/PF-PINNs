@@ -82,7 +82,7 @@ class GeoTimeSampler:
         # right = np.hstack([np.full(yts.shape[0], self.geo_span[0]
         #                   [1]).reshape(-1, 1), yts[:, 0:1], yts[:, 1:2]])  # 右边
 
-        # xyts = np.vstack([xyts, top])
+        xyts = np.vstack([xyts])
 
         return torch.from_numpy(xyts).float().requires_grad_(True)
         # return torch.from_numpy(xyts).float().requires_grad_(True),\
@@ -174,7 +174,7 @@ def ic_func(xts):
     r = torch.sqrt(xts[:, 0:1]**2 + xts[:, 1:2]**2).detach()
     with torch.no_grad():
         phi = 1 - (1 - torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
-                                  torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) * 1e-4)) / 2
+                                  torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) / GEO_COEF)) / 2
         h_phi = -2 * phi**3 + 3 * phi**2
         c = h_phi * CSE
     return torch.cat([phi, c], dim=1)
@@ -184,7 +184,7 @@ def bc_func(xts):
     r = torch.sqrt(xts[:, 0:1]**2 + xts[:, 1:2]**2).detach()
     with torch.no_grad():
         phi = 1 - (1 - torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
-                                  torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) * 1e-4)) / 2
+                                  torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) / GEO_COEF)) / 2
         h_phi = -2 * phi**3 + 3 * phi**2
         c = h_phi * CSE
     return torch.cat([phi, c], dim=1)
