@@ -3,8 +3,6 @@
 
 ## 工况
 
-### 1d-activation driven
-
 1. 检验连续初始条件的作用
 
 Discontinuous initial condition (`FeniCS`)
@@ -31,6 +29,29 @@ def ic_func(xts):
 3. 尝试不同大小的 `RAR_SHAPE` $|\mathcal{S}_a|$, `RAR_BASE_SHAPE` $|\mathcal{S}_{a, b}|$ 以及二者之间的倍数关系对收敛性的影响。
 4. 尝试不同的 `NTK_BATCH_SIZE` 对收敛性的影响。(0, 300, 1000......)
 5. 尝试不同的自适应采样准则对收敛性的影响。(residual or gradient criterion)
+
+
+### 1d-activation driven
+Baseline:
+```ini
+NETWORK_SIZE = [2] + [16]*4 + [2]
+NTK_BATCH_SIZE = 256
+NTK_MODE = "random"
+BREAK_INTERVAL = 100
+EPOCHS = 4000
+GEOTIME_SHAPE = [10, 10]
+BCDATA_SHAPE = 64
+ICDATA_SHAPE = 64
+SAMPLING_STRATEGY = ["grid_transition"] * 3
+RAR_BASE_SHAPE = 5000
+RAR_SHAPE = 512
+ADAPTIVE_SAMPLING = "rar"
+```
+- 1da-case-4-1: `NTK_BATCH_SIZE=128`
+- 1da-case-4-2: `NTK_BATCH_SIZE=64`
+- 1da-case-4-3: `NTK_BATCH_SIZE=32`
+- 1da-case-4-4: mini-batch NTK
+- 1da-case-4-5: no-NTK
 
 
 
@@ -137,28 +158,28 @@ DIM = 1
 DRIVEN = "dissolution"
 GEO_COEF = 1e4
 TIME_COEF = 1e-2
-TIME_SPAN = (0, 1)
-GEO_SPAN = ((-1, 1), (0, 1))
-NETWORK_SIZE = [3] + [16]*4 + [2]
+TIME_SPAN = (0, 0.5)
+GEO_SPAN = ((-0.5, 0.5), (0, 0.5))
+NETWORK_SIZE = [3] + [16]*8 + [2]
 
 MESH_POINTS = "./data/2d/mesh_points.npy"
 REF_PREFIX = "./data/2d/sol-"
-TARGET_TIMES = [0.00, 10.24, 49.15, 94.21]
+TARGET_TIMES = [0.00, 10.24, 20.48, 49.15]
 
 ; REF_PATH = "./data/results-fenics-diffusion.csv"
-NTK_BATCH_SIZE = 800
+NTK_BATCH_SIZE = 400
 BREAK_INTERVAL = 1000
 EPOCHS = 800000
 ALPHA = 1.0
 LR = 1e-3
 
-GEOTIME_SHAPE = [10, 10, 10]
+GEOTIME_SHAPE = [15, 15, 15]
 BCDATA_SHAPE = 128
-ICDATA_SHAPE = 128
+ICDATA_SHAPE = 256
 SAMPLING_STRATEGY = ["grid_transition", "lhs", "lhs"]
 
-RAR_BASE_SHAPE = 20000
-RAR_SHAPE = 3000
+RAR_BASE_SHAPE = 60000
+RAR_SHAPE = 10000
 
 RESUME = None
 ADAPTIVE_SAMPLING = "rar"

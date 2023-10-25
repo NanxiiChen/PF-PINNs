@@ -195,8 +195,10 @@ class PittingCorrosionNN(torch.nn.Module):
             axes[1].set(xlim=GEO_SPAN, ylim=TIME_SPAN,
                         xlabel="x" + geo_label_suffix, ylabel="t" + time_label_suffix, )
 
-            axes[0].set_title("PINN predicted at epoch {}".format(epoch))
-            axes[1].set_title("Error at epoch {}".format(epoch))
+            axes[0].set_title(r"Solution $\hat\phi$"
+                              + f" at epoch {epoch}")
+            axes[1].set_title(r"Error $|\hat \phi - \phi_{ref}|$"
+                              + f" at epoch {epoch}")
             # fig.legend()
 
             acc = 1 - np.mean(diff ** 2)

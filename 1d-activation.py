@@ -14,8 +14,9 @@ matplotlib.use("Agg")
 config = configparser.ConfigParser()
 config.read("config.ini")
 
-
-now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+LOG_NAME = config.get("TRAIN", "LOG_NAME").strip('"')
+# now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+now = LOG_NAME
 writer = SummaryWriter(log_dir="runs/" + now)
 
 
@@ -217,7 +218,7 @@ for epoch in range(EPOCHS):
         ac_weight, ch_weight, bc_weight, ic_weight = \
             net.compute_weight(
                 [ac_residual, ch_residual, bc_forward, ic_forward],
-                method="random",
+                method=config.get("TRAIN", "NTK_MODE").strip('"'),
                 batch_size=NTK_BATCH_SIZE
             )
 

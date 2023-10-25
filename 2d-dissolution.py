@@ -180,13 +180,21 @@ def ic_func(xts):
     return torch.cat([phi, c], dim=1)
 
 
+# def bc_func(xts):
+#     r = torch.sqrt(xts[:, 0:1]**2 + xts[:, 1:2]**2).detach()
+#     with torch.no_grad():
+#         phi = 1 - (1 - torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
+#                                   torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) / GEO_COEF)) / 2
+#         h_phi = -2 * phi**3 + 3 * phi**2
+#         c = h_phi * CSE
+#     return torch.cat([phi, c], dim=1)
+
+
 def bc_func(xts):
     r = torch.sqrt(xts[:, 0:1]**2 + xts[:, 1:2]**2).detach()
     with torch.no_grad():
-        phi = 1 - (1 - torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
-                                  torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) / GEO_COEF)) / 2
-        h_phi = -2 * phi**3 + 3 * phi**2
-        c = h_phi * CSE
+        phi = (r > 0.05).float()
+        c = phi.detach()
     return torch.cat([phi, c], dim=1)
 
 
@@ -227,18 +235,18 @@ for epoch in range(EPOCHS):
 
     FORWARD_BATCH_SIZE = config.getint("TRAIN", "FORWARD_BATCH_SIZE")
 
-    # ac_residual = torch.zeros(len(data), 2).to(net.device)
-    # ch_residual = torch.zeros(len(data), 2).to(net.device)
-    # for i in range(0, len(data), FORWARD_BATCH_SIZE):
-    #     if i + FORWARD_BATCH_SIZE < len(data):
-    #         data_batch = data[i:i+FORWARD_BATCH_SIZE]
-    #         ac_residual[i:i+FORWARD_BATCH_SIZE], \
-    #             ch_residual[i:i+FORWARD_BATCH_SIZE] = net.net_pde(data_batch)
-    #     else:
-    #         data_batch = data[i:]
-    #         ac_residual[i:], ch_residual[i:] = net.net_pde(data_batch)
+    ac_residual = torch.zeros(len(data), 2).to(net.device)
+    ch_residual = torch.zeros(len(data), 2).to(net.device)
+    for i in range(0, len(data), FORWARD_BATCH_SIZE):
+        if i + FORWARD_BATCH_SIZE < len(data):
+            data_batch = data[i:i+FORWARD_BATCH_SIZE]
+            ac_residual[i:i+FORWARD_BATCH_SIZE], \
+                ch_residual[i:i+FORWARD_BATCH_SIZE] = net.net_pde(data_batch)
+        else:
+            data_batch = data[i:]
+            ac_residual[i:], ch_residual[i:] = net.net_pde(data_batch)
 
-    ac_residual, ch_residual = net.net_pde(data)
+    # ac_residual, ch_residual = net.net_pde(data)
     ac_loss = criteria(ac_residual, torch.zeros_like(ac_residual))
     ch_loss = criteria(ch_residual, torch.zeros_like(ch_residual))
     bc_forward = net.net_u(bcdata)
