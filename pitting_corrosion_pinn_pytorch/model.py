@@ -282,8 +282,9 @@ class PittingCorrosionNN(torch.nn.Module):
             raise ValueError("Only 2 or 3 dimensional data is supported")
         return fig, ax
 
-    def compute_weight(self, residuals, method, batch_size):
+    def compute_weight(self, residuals, method, batch_size, return_ntk_info=False):
         traces = []
+        jacs = []
         for res in residuals:
             if method == "random":
                 if batch_size < len(res):
@@ -315,8 +316,19 @@ class PittingCorrosionNN(torch.nn.Module):
                     ])
                     trace += self.compute_ntk(jac, compute='trace').item()
                 traces.append(trace / len(res))
+            elif method == "full":
+                jac = self.compute_jacobian(res)
+                trace = self.compute_ntk(jac, compute='trace').item()
+                traces.append(trace / len(res))
+
             else:
-                raise ValueError("method must be one of 'random' or 'mini'")
+                raise ValueError("method must be one of 'random', 'topres'"
+                                 " 'mini', or 'full'")
+
+            if return_ntk_info:
+                jacs.append(jac)
 
         traces = np.array(traces)
+        if return_ntk_info:
+            return traces.sum() / traces, jacs
         return traces.sum() / traces

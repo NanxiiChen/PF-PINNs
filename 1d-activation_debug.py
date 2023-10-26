@@ -216,12 +216,17 @@ for epoch in range(EPOCHS):
 
     if epoch % BREAK_INTERVAL == 0:
 
-        ac_weight, ch_weight, bc_weight, ic_weight = \
+        (ac_weight, ch_weight, bc_weight, ic_weight), jacs = \
             net.compute_weight(
                 [ac_residual, ch_residual, bc_forward, ic_forward],
                 method=config.get("TRAIN", "NTK_MODE").strip('"'),
-                batch_size=NTK_BATCH_SIZE
-            )
+                batch_size=NTK_BATCH_SIZE,
+                return_ntk_info=True
+        )
+
+        for k, jac in enumerate(jacs):
+            jac = jac.detach().cpu().numpy()
+            np.save(f"./runs/{now}/jac-{epoch}-{k}.npy", jac)
 
         print(f"epoch: {epoch}, "
               f"ic_loss: {ic_loss.item():.4e}, "

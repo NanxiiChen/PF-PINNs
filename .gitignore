@@ -2,6 +2,7 @@ runs/
 .vscode/
 demo.*
 *.pt
+*.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

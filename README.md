@@ -104,9 +104,10 @@ LOG_NAME = "1da-case-4-5"
 
 - 隐藏层 16x4 不太够，必须得到 16x8 以上
 - `RAR_SHAPE`非常重要，而且需要注意 `RAR_BASE_SHAPE` 和 `RAR_SHAPE` 数量之间的倍数关系，因为这决定了自适应采样点是否足够 “集中”
-- 学习率 1e-3 或者稍小比较合适
+- 学习率 5e-4 或者稍小比较合适，1e-3的话会让其他参数的鲁棒性很低
  
 ```ini
+
 [PARAM]
 ALPHA_PHI = 9.62e-5
 OMEGA_PHI = 1.663e7
@@ -125,22 +126,22 @@ TIME_SPAN = (0, 1)
 GEO_SPAN = (-0.5, 0.5)
 NETWORK_SIZE = [2] + [16]*8 + [2]
 REF_PATH = "./data/results-fenics-diffusion.csv"
-NTK_BATCH_SIZE = 500
+NTK_BATCH_SIZE = 400
 BREAK_INTERVAL = 1000
 EPOCHS = 500000
 ALPHA = 1.0
-LR = 1e-3
+LR = 5e-4
 
 GEOTIME_SHAPE = [15, 15]
-BCDATA_SHAPE = 256
+BCDATA_SHAPE = 128
 ICDATA_SHAPE = 256
 SAMPLING_STRATEGY = ["grid_transition"] * 3
 
-RAR_BASE_SHAPE = 40000
+RAR_BASE_SHAPE = 20000
 RAR_SHAPE = 4000
 
 RESUME = None
-ADAPTIVE_SAMPLING = "rar"
+ADAPTIVE_SAMPLING = "gar"
 ```
 
 ### 2d-dissolution 
