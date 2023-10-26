@@ -128,10 +128,10 @@ ref_sol["x"] = ref_sol["x"].apply(lambda x: x * GEO_COEF)
 ref_sol["t"] = ref_sol["t"].apply(lambda t: t * TIME_COEF)
 
 
-ic_weight = 1
-bc_weight = 1
+ic_weight = 8e14
+bc_weight = 6e15
 ac_weight = 1
-ch_weight = 1
+ch_weight = 5e12
 
 NTK_BATCH_SIZE = config.getint("TRAIN", "NTK_BATCH_SIZE")
 BREAK_INTERVAL = config.getint("TRAIN", "BREAK_INTERVAL")

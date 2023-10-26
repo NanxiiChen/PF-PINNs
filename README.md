@@ -51,7 +51,7 @@ ADAPTIVE_SAMPLING = "rar"
 - 1da-case-4-2: `NTK_BATCH_SIZE=64`
 - 1da-case-4-3: `NTK_BATCH_SIZE=32`
 - 1da-case-4-4: mini-batch NTK
-- 1da-case-4-5: no-NTK
+- 1da-case-4-5: no-NTK，这里需要用前面几个工况计算稳定之后的权重作为固定权重，也能收敛。如果不借用前面的结果，全部设置成1的话，就无法收敛
 
 
 
@@ -78,24 +78,26 @@ GEO_COEF = 1e4
 TIME_COEF = 1e-5
 TIME_SPAN = (0, 1)
 GEO_SPAN = (-0.5, 0.5)
-NETWORK_SIZE = [2] + [16]*4 + [2]
 REF_PATH = ./data/results-fenics-active.csv
-NTK_BATCH_SIZE = 256
-BREAK_INTERVAL = 100
-EPOCHS = 40000
 ALPHA = 1.0
 LR = 1e-3
+RESUME = None
 
+
+NETWORK_SIZE = [2] + [16]*4 + [2]
+NTK_BATCH_SIZE = 32
+NTK_MODE = "mini"
+BREAK_INTERVAL = 100
+EPOCHS = 4000
 GEOTIME_SHAPE = [10, 10]
 BCDATA_SHAPE = 64
 ICDATA_SHAPE = 64
 SAMPLING_STRATEGY = ["grid_transition"] * 3
-
-RAR_BASE_SHAPE = 2000
-RAR_SHAPE = 256
-
-RESUME = None
+RAR_BASE_SHAPE = 5000
+RAR_SHAPE = 512
 ADAPTIVE_SAMPLING = "rar"
+
+LOG_NAME = "1da-case-4-5"
 ```
 
 ### 1d-dissolution driven
@@ -123,18 +125,18 @@ TIME_SPAN = (0, 1)
 GEO_SPAN = (-0.5, 0.5)
 NETWORK_SIZE = [2] + [16]*8 + [2]
 REF_PATH = "./data/results-fenics-diffusion.csv"
-NTK_BATCH_SIZE = 600
+NTK_BATCH_SIZE = 500
 BREAK_INTERVAL = 1000
 EPOCHS = 500000
 ALPHA = 1.0
 LR = 1e-3
 
-GEOTIME_SHAPE = [10, 10]
-BCDATA_SHAPE = 128
-ICDATA_SHAPE = 128
+GEOTIME_SHAPE = [15, 15]
+BCDATA_SHAPE = 256
+ICDATA_SHAPE = 256
 SAMPLING_STRATEGY = ["grid_transition"] * 3
 
-RAR_BASE_SHAPE = 30000
+RAR_BASE_SHAPE = 40000
 RAR_SHAPE = 4000
 
 RESUME = None

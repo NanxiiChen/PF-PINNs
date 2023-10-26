@@ -126,9 +126,9 @@ ref_sol["x"] = ref_sol["x"].apply(lambda x: x * GEO_COEF)
 ref_sol["t"] = ref_sol["t"].apply(lambda t: t * TIME_COEF)
 
 
-ic_weight = 1
-bc_weight = 1
-ac_weight = 1
+ic_weight = 2e3
+bc_weight = 3e3
+ac_weight = 1.2e10
 ch_weight = 1
 
 NTK_BATCH_SIZE = config.getint("TRAIN", "NTK_BATCH_SIZE")
@@ -215,12 +215,12 @@ for epoch in range(EPOCHS):
 
     if epoch % BREAK_INTERVAL == 0:
 
-        ac_weight, ch_weight, bc_weight, ic_weight = \
-            net.compute_weight(
-                [ac_residual, ch_residual, bc_forward, ic_forward],
-                method=config.get("TRAIN", "NTK_MODE").strip('"'),
-                batch_size=NTK_BATCH_SIZE
-            )
+        # ac_weight, ch_weight, bc_weight, ic_weight = \
+        #     net.compute_weight(
+        #         [ac_residual, ch_residual, bc_forward, ic_forward],
+        #         method=config.get("TRAIN", "NTK_MODE").strip('"'),
+        #         batch_size=NTK_BATCH_SIZE
+        #     )
 
         print(f"epoch: {epoch}, "
               f"ic_loss: {ic_loss.item():.4e}, "
