@@ -3,6 +3,7 @@ runs/
 demo.*
 *.pt
 *.ipynb
+figures/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

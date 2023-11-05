@@ -292,7 +292,7 @@ for epoch in range(EPOCHS):
             plt.savefig(f"./runs/{now}/fig-{epoch}.png",
                         bbox_inches='tight', dpi=300)
 
-        writer.add_figure("fig/anchors", fig, epoch)
+        writer.add_figure("fig/predict", fig, epoch)
         writer.add_scalar("acc", acc, epoch)
 
     losses = ic_weight * ic_loss \

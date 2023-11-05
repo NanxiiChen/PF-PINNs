@@ -9,6 +9,7 @@ import numpy as np
 import torch
 import datetime
 import matplotlib
+import time
 matplotlib.use("Agg")
 
 config = configparser.ConfigParser()
@@ -127,9 +128,9 @@ ref_sol["x"] = ref_sol["x"].apply(lambda x: x * GEO_COEF)
 ref_sol["t"] = ref_sol["t"].apply(lambda t: t * TIME_COEF)
 
 
-ic_weight = 2e3
-bc_weight = 3e3
-ac_weight = 1.2e10
+ic_weight = 1
+bc_weight = 1
+ac_weight = 1
 ch_weight = 1
 
 NTK_BATCH_SIZE = config.getint("TRAIN", "NTK_BATCH_SIZE")
@@ -200,11 +201,11 @@ for epoch in range(EPOCHS):
         bcdata = bcdata.to(net.device)
         icdata = icdata.to(net.device)
 
-        fig, ax = net.plot_samplings(
-            geotime, bcdata, icdata, anchors)
-        plt.savefig(f"./runs/{now}/sampling-{epoch}.png",
-                    bbox_inches='tight', dpi=300)
-        writer.add_figure("sampling", fig, epoch)
+        # fig, ax = net.plot_samplings(
+        #     geotime, bcdata, icdata, anchors)
+        # plt.savefig(f"./runs/{now}/sampling-{epoch}.png",
+        #             # bbox_inches='tight', dpi=300)
+        # writer.add_figure("sampling", fig, epoch)
 
     ac_residual, ch_residual = net.net_pde(data)
     ac_loss = criteria(ac_residual, torch.zeros_like(ac_residual))
@@ -216,12 +217,12 @@ for epoch in range(EPOCHS):
 
     if epoch % BREAK_INTERVAL == 0:
 
-        ac_weight, ch_weight, bc_weight, ic_weight = \
-            net.compute_weight(
-                [ac_residual, ch_residual, bc_forward, ic_forward],
-                method=config.get("TRAIN", "NTK_MODE").strip('"'),
-                batch_size=NTK_BATCH_SIZE
-            )
+        # ac_weight, ch_weight, bc_weight, ic_weight = \
+        #     net.compute_weight(
+        #         [ac_residual, ch_residual, bc_forward, ic_forward],
+        #         method=config.get("TRAIN", "NTK_MODE").strip('"'),
+        #         batch_size=NTK_BATCH_SIZE
+        #     )
 
         print(f"epoch: {epoch}, "
               f"ic_loss: {ic_loss.item():.4e}, "
@@ -239,15 +240,16 @@ for epoch in range(EPOCHS):
         writer.add_scalar("weight/ac", ac_weight, epoch)
         writer.add_scalar("weight/ch", ch_weight, epoch)
 
-        fig, ax, acc = net.plot_predict(ref_sol=ref_sol, epoch=epoch)
+        # fig, ax, acc = net.plot_predict(ref_sol=ref_sol, epoch=epoch)
 
         if epoch % (BREAK_INTERVAL) == 0:
             torch.save(net.state_dict(), f"./runs/{now}/model-{epoch}.pt")
-            plt.savefig(f"./runs/{now}/fig-{epoch}.png",
-                        bbox_inches='tight', dpi=300)
+        # plt.savefig(f"./runs/{now}/fig-{epoch}.png",
+        #             bbox_inches='tight', dpi=300)
+        # ! Saving figure is too slow
 
-        writer.add_figure("fig/anchors", fig, epoch)
-        writer.add_scalar("acc", acc, epoch)
+        # writer.add_figure("fig/predict", fig, epoch)
+        # writer.add_scalar("acc", acc, epoch)
 
     losses = ic_weight * ic_loss \
         + bc_weight * bc_loss \

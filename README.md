@@ -35,7 +35,7 @@ def ic_func(xts):
 Baseline:
 ```ini
 NETWORK_SIZE = [2] + [16]*4 + [2]
-NTK_BATCH_SIZE = 256
+NTK_BATCH_SIZE = 512
 NTK_MODE = "random"
 BREAK_INTERVAL = 100
 EPOCHS = 4000
@@ -47,9 +47,9 @@ RAR_BASE_SHAPE = 5000
 RAR_SHAPE = 512
 ADAPTIVE_SAMPLING = "rar"
 ```
-- 1da-case-4-1: `NTK_BATCH_SIZE=128`
-- 1da-case-4-2: `NTK_BATCH_SIZE=64`
-- 1da-case-4-3: `NTK_BATCH_SIZE=32`
+- 1da-case-4-1: `NTK_BATCH_SIZE=256`
+- 1da-case-4-2: `NTK_BATCH_SIZE=128`
+- 1da-case-4-3: `NTK_BATCH_SIZE=64`
 - 1da-case-4-4: mini-batch NTK
 - 1da-case-4-5: no-NTK，这里需要用前面几个工况计算稳定之后的权重作为固定权重，也能收敛。如果不借用前面的结果，全部设置成1的话，就无法收敛
 
@@ -104,7 +104,7 @@ LOG_NAME = "1da-case-4-5"
 
 - 隐藏层 16x4 不太够，必须得到 16x8 以上
 - `RAR_SHAPE`非常重要，而且需要注意 `RAR_BASE_SHAPE` 和 `RAR_SHAPE` 数量之间的倍数关系，因为这决定了自适应采样点是否足够 “集中”
-- 学习率 5e-4 或者稍小比较合适，1e-3的话会让其他参数的鲁棒性很低
+- 学习率 5e-4 或者稍小比较合适，1e-3的话会让其他参数的鲁棒性很低；或者是训练到一定程度之后减小学习率继续跑
  
 ```ini
 
@@ -141,7 +141,7 @@ RAR_BASE_SHAPE = 20000
 RAR_SHAPE = 4000
 
 RESUME = None
-ADAPTIVE_SAMPLING = "gar"
+ADAPTIVE_SAMPLING = "rar"
 ```
 
 ### 2d-dissolution 
@@ -167,14 +167,14 @@ NETWORK_SIZE = [3] + [16]*8 + [2]
 
 MESH_POINTS = "./data/2d/mesh_points.npy"
 REF_PREFIX = "./data/2d/sol-"
-TARGET_TIMES = [0.00, 10.24, 20.48, 49.15]
+TARGET_TIMES = [0.00, 5.12, 10.24, 20.48, 49.15]
 
 ; REF_PATH = "./data/results-fenics-diffusion.csv"
-NTK_BATCH_SIZE = 400
+NTK_BATCH_SIZE = 300
 BREAK_INTERVAL = 1000
 EPOCHS = 800000
 ALPHA = 1.0
-LR = 1e-3
+LR = 5e-5
 
 GEOTIME_SHAPE = [15, 15, 15]
 BCDATA_SHAPE = 128
@@ -182,9 +182,9 @@ ICDATA_SHAPE = 256
 SAMPLING_STRATEGY = ["grid_transition", "lhs", "lhs"]
 
 RAR_BASE_SHAPE = 60000
-RAR_SHAPE = 10000
+RAR_SHAPE = 8000
 
-RESUME = None
+RESUME = "./runs/1103-suc-58k/model-58000.pt"
 ADAPTIVE_SAMPLING = "rar"
 FORWARD_BATCH_SIZE = 2000
 ```

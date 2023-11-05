@@ -3,7 +3,7 @@ import numpy as np
 from collections import OrderedDict
 import matplotlib.pyplot as plt
 # from allen_cahn.sampler import GeoTimeSampler
-
+import time
 import configparser
 
 config = configparser.ConfigParser()
