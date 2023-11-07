@@ -75,7 +75,7 @@ class GeoTimeSampler:
         xts = np.vstack([xt_l, xt_r])
         return torch.from_numpy(xts).float().requires_grad_(True)
 
-    def ic_sample(self, ic_num, strategy: str = "lhs", local_area=[0.2, 0.4]):
+    def ic_sample(self, ic_num, strategy: str = "lhs", local_area=[0.3, 0.5]):
         if strategy == "lhs":
             xs = (lhs(1, ic_num) *
                   (self.geo_span[1] - self.geo_span[0]) + self.geo_span[0]).reshape(-1, 1)
@@ -157,7 +157,7 @@ def bc_func(xts):
 def ic_func(xts):
     with torch.no_grad():
         phi = (1 - torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
-                              torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (xts[:, 0:1] - 0.30) / GEO_COEF)) / 2
+                              torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (xts[:, 0:1] - 0.40) / GEO_COEF)) / 2
         h_phi = -2 * phi**3 + 3 * phi**2
         c = h_phi * CSE + (1 - h_phi) * 0.0
     return torch.cat([phi, c], dim=1)
@@ -193,8 +193,8 @@ for epoch in range(EPOCHS):
         icdata = icdata.to(net.device)
 
         fig, ax = net.plot_samplings(geotime, bcdata, icdata, anchors)
-        plt.savefig(f"./runs/{now}/sampling-{epoch}.png",
-                    bbox_inches='tight', dpi=300)
+        # plt.savefig(f"./runs/{now}/sampling-{epoch}.png",
+        #             bbox_inches='tight', dpi=300)
         writer.add_figure("sampling", fig, epoch)
 
     ac_residual, ch_residual = net.net_pde(data)
@@ -234,8 +234,8 @@ for epoch in range(EPOCHS):
 
         if epoch % (BREAK_INTERVAL) == 0:
             torch.save(net.state_dict(), f"./runs/{now}/model-{epoch}.pt")
-            plt.savefig(f"./runs/{now}/fig-{epoch}.png",
-                        bbox_inches='tight', dpi=300)
+            # plt.savefig(f"./runs/{now}/fig-{epoch}.png",
+            #             bbox_inches='tight', dpi=300)
 
         writer.add_figure("fig/anchors", fig, epoch)
         writer.add_scalar("acc", acc, epoch)
