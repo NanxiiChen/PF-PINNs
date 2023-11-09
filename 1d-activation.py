@@ -201,11 +201,12 @@ for epoch in range(EPOCHS):
         bcdata = bcdata.to(net.device)
         icdata = icdata.to(net.device)
 
-        # fig, ax = net.plot_samplings(
-        #     geotime, bcdata, icdata, anchors)
+        fig, ax = net.plot_samplings(
+            geotime, bcdata,
+            icdata, anchors)
         # plt.savefig(f"./runs/{now}/sampling-{epoch}.png",
         #             # bbox_inches='tight', dpi=300)
-        # writer.add_figure("sampling", fig, epoch)
+        writer.add_figure("sampling", fig, epoch)
 
     ac_residual, ch_residual = net.net_pde(data)
     ac_loss = criteria(ac_residual, torch.zeros_like(ac_residual))
@@ -217,12 +218,12 @@ for epoch in range(EPOCHS):
 
     if epoch % BREAK_INTERVAL == 0:
 
-        # ac_weight, ch_weight, bc_weight, ic_weight = \
-        #     net.compute_weight(
-        #         [ac_residual, ch_residual, bc_forward, ic_forward],
-        #         method=config.get("TRAIN", "NTK_MODE").strip('"'),
-        #         batch_size=NTK_BATCH_SIZE
-        #     )
+        ac_weight, ch_weight, bc_weight, ic_weight = \
+            net.compute_weight(
+                [ac_residual, ch_residual, bc_forward, ic_forward],
+                method=config.get("TRAIN", "NTK_MODE").strip('"'),
+                batch_size=NTK_BATCH_SIZE
+            )
 
         print(f"epoch: {epoch}, "
               f"ic_loss: {ic_loss.item():.4e}, "
@@ -240,7 +241,7 @@ for epoch in range(EPOCHS):
         writer.add_scalar("weight/ac", ac_weight, epoch)
         writer.add_scalar("weight/ch", ch_weight, epoch)
 
-        # fig, ax, acc = net.plot_predict(ref_sol=ref_sol, epoch=epoch)
+        fig, ax, acc = net.plot_predict(ref_sol=ref_sol, epoch=epoch)
 
         if epoch % (BREAK_INTERVAL) == 0:
             torch.save(net.state_dict(), f"./runs/{now}/model-{epoch}.pt")
@@ -248,8 +249,8 @@ for epoch in range(EPOCHS):
         #             bbox_inches='tight', dpi=300)
         # ! Saving figure is too slow
 
-        # writer.add_figure("fig/predict", fig, epoch)
-        # writer.add_scalar("acc", acc, epoch)
+        writer.add_figure("fig/predict", fig, epoch)
+        writer.add_scalar("acc", acc, epoch)
 
     losses = ic_weight * ic_loss \
         + bc_weight * bc_loss \

@@ -183,6 +183,9 @@ for epoch in range(EPOCHS):
         method = config.get("TRAIN", "ADAPTIVE_SAMPLING").strip('"')
         anchors = net.adaptive_sampling(RAR_SHAPE, residual_base_data,
                                         method=method)
+        # anchors_2 = net.adaptive_sampling(RAR_SHAPE, residual_base_data,
+        #                                   method="gar")
+        # anchors = torch.cat([anchors_1, anchors_2], dim=0).unique(dim=0)
         net.train()
         data = torch.cat([anchors, geotime],
                          dim=0).requires_grad_(True)
