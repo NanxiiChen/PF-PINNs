@@ -4,8 +4,8 @@ import configparser
 import pandas as pd
 from tensorboardX import SummaryWriter
 from matplotlib import pyplot as plt
-import pitting_corrosion_pinn_pytorch as pc
-from pitting_corrosion_pinn_pytorch.utils import matplotlib_configs
+import pf_pinn as pfp
+from pf_pinn.utils import matplotlib_configs
 import numpy as np
 import torch
 import datetime
@@ -39,11 +39,11 @@ class GeoTimeSampler:
     def in_sample(self, in_num, strategy: str = "lhs",):
 
         if strategy == "lhs":
-            func = pc.make_lhs_sampling_data
+            func = pfp.make_lhs_sampling_data
         elif strategy == "grid":
-            func = pc.make_uniform_grid_data
+            func = pfp.make_uniform_grid_data
         elif strategy == "grid_transition":
-            func = pc.make_uniform_grid_data_transition
+            func = pfp.make_uniform_grid_data_transition
         else:
             raise ValueError(f"Unknown strategy {strategy}")
         geotime = func(mins=[self.geo_span[0], self.time_span[0]],
@@ -106,7 +106,7 @@ class GeoTimeSampler:
 geo_span = eval(config.get("TRAIN", "GEO_SPAN"))
 time_span = eval(config.get("TRAIN", "TIME_SPAN"))
 sampler = GeoTimeSampler(geo_span, time_span)
-net = pc.PittingCorrosionNN(
+net = pfp.PFPINN(
     sizes=eval(config.get("TRAIN", "NETWORK_SIZE")),
     act=torch.nn.Tanh
 )

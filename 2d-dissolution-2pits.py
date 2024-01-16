@@ -4,7 +4,7 @@ import configparser
 import pandas as pd
 from tensorboardX import SummaryWriter
 from matplotlib import pyplot as plt
-import pitting_corrosion_pinn_pytorch as pc
+import pf_pinn as pfp
 import numpy as np
 import torch
 import datetime
@@ -36,11 +36,11 @@ class GeoTimeSampler:
     def in_sample(self, in_num, strategy: str = "lhs",):
 
         if strategy == "lhs":
-            func = pc.make_lhs_sampling_data
+            func = pfp.make_lhs_sampling_data
         elif strategy == "grid":
-            func = pc.make_uniform_grid_data
+            func = pfp.make_uniform_grid_data
         elif strategy == "grid_transition":
-            func = pc.make_uniform_grid_data_transition
+            func = pfp.make_uniform_grid_data_transition
         else:
             raise ValueError(f"Unknown strategy {strategy}")
         geotime = func(mins=[self.geo_span[0][0], self.geo_span[1][0], self.time_span[0]],
@@ -54,18 +54,18 @@ class GeoTimeSampler:
     def bc_sample(self, bc_num: int, strategy: str = "lhs", xspan=[-0.025, 0.025]):
         # 四条边，顺着时间变成四个面
         if strategy == "lhs":
-            func = pc.make_lhs_sampling_data
+            func = pfp.make_lhs_sampling_data
         elif strategy == "grid":
-            func = pc.make_uniform_grid_data
+            func = pfp.make_uniform_grid_data
         elif strategy == "grid_transition":
-            func = pc.make_uniform_grid_data_transition
+            func = pfp.make_uniform_grid_data_transition
         else:
             raise ValueError(f"Unknown strategy {strategy}")
 
-        xyts = pc.make_lhs_sampling_data(mins=[-0.025, 0, self.time_span[0]],
-                                         maxs=[0.025, 0.025,
-                                               self.time_span[1]],
-                                         num=bc_num)
+        xyts = pfp.make_lhs_sampling_data(mins=[-0.025, 0, self.time_span[0]],
+                                          maxs=[0.025, 0.025,
+                                                self.time_span[1]],
+                                          num=bc_num)
         xyts = xyts[xyts[:, 0] ** 2 + xyts[:, 1] ** 2 <= 0.025 ** 2]
         xyts_left = xyts.copy()
         xyts_left[:, 0:1] -= 0.15
@@ -92,26 +92,26 @@ class GeoTimeSampler:
 
     def ic_sample(self, ic_num, strategy: str = "lhs", local_area=[[-0.1, 0.1], [0, 0.1]]):
         if strategy == "lhs":
-            xys = pc.make_lhs_sampling_data(mins=[self.geo_span[0][0], self.geo_span[1][0]],
-                                            maxs=[self.geo_span[0][1],
-                                                  self.geo_span[1][1]],
-                                            num=ic_num)
+            xys = pfp.make_lhs_sampling_data(mins=[self.geo_span[0][0], self.geo_span[1][0]],
+                                             maxs=[self.geo_span[0][1],
+                                                   self.geo_span[1][1]],
+                                             num=ic_num)
 
         elif strategy == "grid":
-            xys = pc.make_uniform_grid_data(mins=[self.geo_span[0][0], self.geo_span[1][0]],
-                                            maxs=[self.geo_span[0][1],
-                                                  self.geo_span[1][1]],
-                                            num=ic_num)
+            xys = pfp.make_uniform_grid_data(mins=[self.geo_span[0][0], self.geo_span[1][0]],
+                                             maxs=[self.geo_span[0][1],
+                                                   self.geo_span[1][1]],
+                                             num=ic_num)
         elif strategy == "grid_transition":
-            xys = pc.make_uniform_grid_data_transition(mins=[self.geo_span[0][0], self.geo_span[1][0]],
-                                                       maxs=[
-                                                           self.geo_span[0][1], self.geo_span[1][1]],
-                                                       num=ic_num)
+            xys = pfp.make_uniform_grid_data_transition(mins=[self.geo_span[0][0], self.geo_span[1][0]],
+                                                        maxs=[
+                self.geo_span[0][1], self.geo_span[1][1]],
+                num=ic_num)
         else:
             raise ValueError(f"Unknown strategy {strategy}")
-        xys_local = pc.make_semi_circle_data(radius=0.1,
-                                             num=ic_num*2,
-                                             center=[0, 0.])
+        xys_local = pfp.make_semi_circle_data(radius=0.1,
+                                              num=ic_num*2,
+                                              center=[0, 0.])
         xys_local_left = xys_local.copy()
         xys_local_left[:, 0:1] -= 0.15
         xys_local_right = xys_local.copy()
@@ -125,7 +125,7 @@ class GeoTimeSampler:
 geo_span = eval(config.get("TRAIN", "GEO_SPAN"))
 time_span = eval(config.get("TRAIN", "TIME_SPAN"))
 sampler = GeoTimeSampler(geo_span, time_span)
-net = pc.PittingCorrosionNN(
+net = pfp.PFPINN(
     sizes=eval(config.get("TRAIN", "NETWORK_SIZE")),
     act=torch.nn.Tanh
 )

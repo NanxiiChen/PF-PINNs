@@ -26,7 +26,7 @@ TIME_SPAN = eval(config.get("TRAIN", "TIME_SPAN"))
 GEO_SPAN = eval(config.get("TRAIN", "GEO_SPAN"))
 
 
-class PittingCorrosionNN(torch.nn.Module):
+class PFPINN(torch.nn.Module):
     def __init__(
         self,
         sizes: list,
