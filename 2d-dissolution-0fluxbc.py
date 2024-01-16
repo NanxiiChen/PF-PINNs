@@ -16,7 +16,7 @@ config.read("config.ini")
 
 
 now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-writer = SummaryWriter(log_dir="/root/tf-logs/" + now)
+writer = SummaryWriter(log_dir="runs/" + now)
 
 
 class GeoTimeSampler:
@@ -73,6 +73,8 @@ class GeoTimeSampler:
                    num=bc_num)
         top = np.hstack([xts[:, 0:1], np.full(
             xts.shape[0], self.geo_span[1][1]).reshape(-1, 1), xts[:, 1:2]])  # 顶边
+        bottom = np.hstack([xts[:, 0:1], np.full(
+            xts.shape[0], self.geo_span[1][0]).reshape(-1, 1), xts[:, 1:2]])  # 底边
 
         yts = func(mins=[self.geo_span[1][0], self.time_span[0]],
                    maxs=[self.geo_span[1][1], self.time_span[1]],
@@ -84,40 +86,27 @@ class GeoTimeSampler:
 
         xyts = np.vstack([xyts, top, left, right])
 
-        return torch.from_numpy(xyts).float().requires_grad_(True)
-        # return torch.from_numpy(xyts).float().requires_grad_(True),\
-        #     torch.from_numpy(xyts2).float().requires_grad_(True)
+        return torch.from_numpy(xyts).float().requires_grad_(True), \
+            torch.from_numpy(bottom).float().requires_grad_(True)
+        # 底边，用于第二类边界条件
 
     def ic_sample(self, ic_num, strategy: str = "lhs", local_area=[[-0.1, 0.1], [0, 0.1]]):
         if strategy == "lhs":
-            # xs = (lhs(1, ic_num) *
-            #       (self.geo_span[1] - self.geo_span[0]) + self.geo_span[0]).reshape(-1, 1)
             xys = pc.make_lhs_sampling_data(mins=[self.geo_span[0][0], self.geo_span[1][0]],
                                             maxs=[self.geo_span[0][1],
                                                   self.geo_span[1][1]],
                                             num=ic_num)
-            # xys_local = make_lhs_sampling_data(mins=[local_area[0][0], local_area[1][0]],
-            #                                    maxs=[local_area[0][1],
-            #                                          local_area[1][1]],
-            #                                    num=ic_num)
+
         elif strategy == "grid":
             xys = pc.make_uniform_grid_data(mins=[self.geo_span[0][0], self.geo_span[1][0]],
                                             maxs=[self.geo_span[0][1],
                                                   self.geo_span[1][1]],
                                             num=ic_num)
-            # xys_local = make_uniform_grid_data(mins=[local_area[0][0], local_area[1][0]],
-            #                                    maxs=[local_area[0][1],
-            #                                          local_area[1][1]],
-            #                                    num=ic_num)
         elif strategy == "grid_transition":
             xys = pc.make_uniform_grid_data_transition(mins=[self.geo_span[0][0], self.geo_span[1][0]],
                                                        maxs=[
-                self.geo_span[0][1], self.geo_span[1][1]],
-                num=ic_num)
-            # xys_local = make_uniform_grid_data_transition(mins=[local_area[0][0], local_area[1][0]],
-            #                                               maxs=[
-            #                                                   local_area[0][1], local_area[1][1]],
-            #                                               num=ic_num)
+                                                           self.geo_span[0][1], self.geo_span[1][1]],
+                                                       num=ic_num)
         else:
             raise ValueError(f"Unknown strategy {strategy}")
         xys_local = pc.make_semi_circle_data(
@@ -183,14 +172,28 @@ def ic_func(xts):
 def bc_func(xts):
     r = torch.sqrt(xts[:, 0:1]**2 + xts[:, 1:2]**2).detach()
     with torch.no_grad():
-        phi = (r > 0.05).float()
-        c = phi.detach()
+        phi = 1 - (1 - torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
+                                  torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * (r-0.05) / GEO_COEF)) / 2
+        h_phi = -2 * phi**3 + 3 * phi**2
+        c = h_phi * CSE
     return torch.cat([phi, c], dim=1)
+
+
+def bc_neu_func(xts):
+    with torch.no_grad():
+        val = torch.zeros_like(xts[:, 0:1])
+    return torch.cat([val, val], dim=1)
+
+# def bc_func(xts):
+#     r = torch.sqrt(xts[:, 0:1]**2 + xts[:, 1:2]**2).detach()
+#     with torch.no_grad():
+#         phi = (r > 0.05).float()
+#         c = phi.detach()
+#     return torch.cat([phi, c], dim=1)
 
 
 criteria = torch.nn.MSELoss()
 opt = torch.optim.Adam(net.parameters(), lr=LR)
-scheduler = torch.optim.lr_scheduler.StepLR(opt, step_size=50000, gamma=0.5)
 
 GEOTIME_SHAPE = eval(config.get("TRAIN", "GEOTIME_SHAPE"))
 BCDATA_SHAPE = eval(config.get("TRAIN", "BCDATA_SHAPE"))
@@ -204,6 +207,7 @@ for epoch in range(EPOCHS):
     if epoch % BREAK_INTERVAL == 0:
         geotime, bcdata, icdata = sampler.resample(GEOTIME_SHAPE, BCDATA_SHAPE,
                                                    ICDATA_SHAPE, strateges=SAMPLING_STRATEGY)
+        bcdata, bc_neu = bcdata
         geotime = geotime.to(net.device)
         residual_base_data = sampler.in_sample(RAR_BASE_SHAPE, strategy="lhs")
         method = config.get("TRAIN", "ADAPTIVE_SAMPLING").strip('"')
@@ -218,10 +222,11 @@ for epoch in range(EPOCHS):
 
         bcdata = bcdata.to(net.device)
         icdata = icdata.to(net.device)
+        bc_neu = bc_neu.to(net.device)
 
         fig, ax = net.plot_samplings(geotime, bcdata, icdata, anchors)
-#         plt.savefig(f"./runs/{now}/sampling-{epoch}.png",
-#                     bbox_inches='tight', dpi=300)
+        # plt.savefig(f"./runs/{now}/sampling-{epoch}.png",
+        #             bbox_inches='tight', dpi=300)
         writer.add_figure("sampling", fig, epoch)
 
     FORWARD_BATCH_SIZE = config.getint("TRAIN", "FORWARD_BATCH_SIZE")
@@ -244,12 +249,15 @@ for epoch in range(EPOCHS):
     bc_loss = criteria(bc_forward, bc_func(bcdata).detach())
     ic_forward = net.net_u(icdata)
     ic_loss = criteria(ic_forward, ic_func(icdata).detach())
+    bc_neu_forward = net.net_dev(bc_neu)[:, 0:2]
+    bc_neu_loss = criteria(bc_neu_forward, bc_neu_func(bc_neu).detach())
 
     if epoch % BREAK_INTERVAL == 0:
 
-        ac_weight, ch_weight, bc_weight, ic_weight = \
+        ac_weight, ch_weight, bc_weight, ic_weight, bc_neu_weight = \
             net.compute_weight(
-                [ac_residual, ch_residual, bc_forward, ic_forward],
+                [ac_residual, ch_residual, bc_forward,
+                    ic_forward, bc_neu_forward],
                 method="random",
                 batch_size=NTK_BATCH_SIZE
             )
@@ -264,11 +272,13 @@ for epoch in range(EPOCHS):
         writer.add_scalar("loss/bc", bc_loss, epoch)
         writer.add_scalar("loss/ac", ac_loss, epoch)
         writer.add_scalar("loss/ch", ch_loss, epoch)
+        writer.add_scalar("loss/bc_neu", bc_neu_loss, epoch)
 
         writer.add_scalar("weight/ic", ic_weight, epoch)
         writer.add_scalar("weight/bc", bc_weight, epoch)
         writer.add_scalar("weight/ac", ac_weight, epoch)
         writer.add_scalar("weight/ch", ch_weight, epoch)
+        writer.add_scalar("weight/bc_neu", bc_neu_weight, epoch)
 
         TARGET_TIMES = eval(config.get("TRAIN", "TARGET_TIMES"))
 
@@ -279,18 +289,18 @@ for epoch in range(EPOCHS):
                                         ref_prefix=REF_PREFIX)
 
         if epoch % (BREAK_INTERVAL) == 0:
-            torch.save(net.state_dict(),
-                       f"/root/tf-logs/{now}/model-{epoch}.pt")
-#             plt.savefig(f"./runs/{now}/fig-{epoch}.png",
-#                         bbox_inches='tight', dpi=300)
+            torch.save(net.state_dict(), f"./runs/{now}/model-{epoch}.pt")
+            # plt.savefig(f"./runs/{now}/fig-{epoch}.png",
+            #             bbox_inches='tight', dpi=300)
 
-        writer.add_figure("fig/anchors", fig, epoch)
+        writer.add_figure("fig/predict", fig, epoch)
         writer.add_scalar("acc", acc, epoch)
 
     losses = ic_weight * ic_loss \
         + bc_weight * bc_loss \
         + ac_weight * ac_loss \
-        + ch_weight * ch_loss
+        + ch_weight * ch_loss \
+        + bc_neu_weight * bc_neu_loss
 
     if epoch % (BREAK_INTERVAL) == 0:
         writer.add_scalar("loss/total", losses, epoch)
@@ -298,6 +308,5 @@ for epoch in range(EPOCHS):
     opt.zero_grad()
     losses.backward()
     opt.step()
-    scheduler.step()
 
 print("Done")

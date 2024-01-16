@@ -61,6 +61,16 @@ class PittingCorrosionNN(torch.nn.Module):
         x = x.to(self.device)
         return self.forward(x)
 
+    def net_dev(self, x, on="y"):
+        x = x.to(self.device)
+        out = self.forward(x)
+        dev_phi = self.auto_grad(out[:, 0:1], x)
+        dev_c = self.auto_grad(out[:, 1:2], x)
+        if on == "y":
+            return torch.cat([dev_phi[:, 1:2], dev_c[:, 1:2]], dim=1)
+        elif on == "x":
+            return torch.cat([dev_phi[:, 0:1], dev_c[:, 0:1]], dim=1)
+
     def net_pde(self, geotime):
         # geo: x, t
         # sol: phi, c
@@ -154,7 +164,7 @@ class PittingCorrosionNN(torch.nn.Module):
     def compute_jacobian(self, output):
         output = output.reshape(-1)
 
-        grads = torch.autograd.grad(output, list(self.parameters()), (torch.eye(output.shape[0]).to(
+        grads = torch.autograd.grad(output, list(self.parameters())[:-1], (torch.eye(output.shape[0]).to(
             self.device),), is_grads_batched=True, retain_graph=True)
 
         return torch.cat([grad.flatten().reshape(len(output), -1) for grad in grads], 1)
@@ -201,7 +211,7 @@ class PittingCorrosionNN(torch.nn.Module):
                               + f" at epoch {epoch}")
             # fig.legend()
 
-            acc = 1 - np.mean(diff ** 2)
+            acc = 1 - np.sqrt(np.mean(diff ** 2))
 
         else:
 
@@ -229,7 +239,7 @@ class PittingCorrosionNN(torch.nn.Module):
                                  xlabel="x" + geo_label_suffix, ylabel="y" + geo_label_suffix,
                                  title="error t = " + str(round(tic, 2)))
                 diffs.append(diff)
-            acc = 1 - np.mean(np.array(diffs) ** 2)
+            acc = 1 - np.sqrt(np.mean(np.array(diffs) ** 2))
 
         return fig, axes, acc
 
@@ -259,7 +269,7 @@ class PittingCorrosionNN(torch.nn.Module):
                       loc='upper left', borderaxespad=0.)
         elif geotime.shape[1] == 3:
             fig, ax = plt.subplots(1, 1, figsize=(10, 5),
-                                   subplot_kw={"aspect": "equal",
+                                   subplot_kw={"aspect": "auto",
                                                "xlim": GEO_SPAN[0],
                                                "ylim": GEO_SPAN[1],
                                                "zlim": TIME_SPAN,

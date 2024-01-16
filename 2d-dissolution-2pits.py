@@ -200,6 +200,7 @@ def bc_func(xts):
 
 criteria = torch.nn.MSELoss()
 opt = torch.optim.Adam(net.parameters(), lr=LR)
+scheduler = torch.optim.lr_scheduler.StepLR(opt, step_size=25000, gamma=0.8)
 
 GEOTIME_SHAPE = eval(config.get("TRAIN", "GEOTIME_SHAPE"))
 BCDATA_SHAPE = eval(config.get("TRAIN", "BCDATA_SHAPE"))
@@ -295,5 +296,6 @@ for epoch in range(EPOCHS):
     opt.zero_grad()
     losses.backward()
     opt.step()
+    scheduler.step()
 
 print("Done")
