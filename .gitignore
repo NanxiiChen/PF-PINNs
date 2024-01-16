@@ -7,6 +7,9 @@ figures/
 debug_files/
 2d-dissolution-3pits.py 
 2d-dissolution-0fluxbc.py
+logs.md
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
