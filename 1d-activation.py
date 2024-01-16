@@ -22,6 +22,7 @@ if LOG_NAME == "None":
 writer = SummaryWriter(log_dir="runs/" + now)
 
 
+# Define the sampler
 class GeoTimeSampler:
     def __init__(
         self,
@@ -154,23 +155,12 @@ def bc_func(xts):
     return torch.cat([val, val], dim=1)
 
 
-"""
-# discontinuous initial condition
-def ic_func(xts):
-    with torch.no_grad():
-        phi = (xts[:, 0:1] < 0.0).float()
-        c = phi * 1.0
-    return torch.cat([phi, c], dim=1)
-"""
-
-
 def ic_func(xts):
     with torch.no_grad():
         phi = (1 - torch.tanh(torch.sqrt(torch.tensor(OMEGA_PHI)) /
                               torch.sqrt(2 * torch.tensor(ALPHA_PHI)) * xts[:, 0:1] / GEO_COEF)) / 2
         h_phi = -2 * phi**3 + 3 * phi**2
         c = h_phi * CSE + (1 - h_phi) * 0.0
-        # c = phi * 1.0
     return torch.cat([phi, c], dim=1)
 
 

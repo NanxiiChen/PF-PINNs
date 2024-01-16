@@ -58,10 +58,12 @@ class PFPINN(torch.nn.Module):
         return self.model(x)
 
     def net_u(self, x):
+        # compute the pde solution `u`: [phi, c]
         x = x.to(self.device)
         return self.forward(x)
 
     def net_dev(self, x, on="y"):
+        # compute the derivative of the pde solution `u` w.r.t. x: [dphi/dx, dc/dx] or [dphi/dy, dc/dy]
         x = x.to(self.device)
         out = self.forward(x)
         dev_phi = self.auto_grad(out[:, 0:1], x)
@@ -72,7 +74,8 @@ class PFPINN(torch.nn.Module):
             return torch.cat([dev_phi[:, 0:1], dev_c[:, 0:1]], dim=1)
 
     def net_pde(self, geotime):
-        # geo: x, t
+        # compute the pde residual
+        # geo: x/y, t
         # sol: phi, c
         geotime = geotime.detach().requires_grad_(True).to(self.device)
         sol = self.net_u(geotime)
@@ -115,10 +118,12 @@ class PFPINN(torch.nn.Module):
         return [ac, ch]
 
     def gradient(self, loss):
+        # compute gradient of loss w.r.t. model parameters
         loss.backward(retain_graph=True)
         return torch.cat([g.grad.view(-1) for g in self.model.parameters()])
 
     def adaptive_sampling(self, num, base_data, method):
+        # adaptive sampling based on various criteria
         base_data = base_data.to(self.device)
         self.eval()
         if method == "rar":
@@ -148,19 +153,6 @@ class PFPINN(torch.nn.Module):
             raise ValueError("method must be one of 'rar' or 'gar'")
         return base_data[idxs].to(self.device)
 
-    # def compute_jacobian(self, output, batch_size=1000):
-    #     output = output.reshape(-1)
-    #     grads = []
-    #     for i in range(0, len(output), batch_size):
-    #         # grads.append(torch.autograd.grad(output[i:i + batch_size], self.parameters(), create_graph=True))
-    #         grads = torch.autograd.grad(output[i:i + batch_size], list(self.parameters()), (torch.eye(output[i:i + batch_size].shape[0]).to(
-    #             self.device),), is_grads_batched=True, retain_graph=True)
-    #         grad_per_layer = []
-    #         for p in self.parameters():
-    #             grad_per_layer += torch.autograd.grad(output[i:i + batch_size], p, retain_graph=True)
-
-    #     return torch.cat([grad.flatten().reshape(len(output), -1) for grad in grads], 1)
-
     def compute_jacobian(self, output):
         output = output.reshape(-1)
 
@@ -182,7 +174,7 @@ class PFPINN(torch.nn.Module):
 
     def plot_predict(self, ref_sol=None, epoch=None, ts=None,
                      mesh_points=None, ref_prefix=None):
-
+        # plot the prediction of the model
         geo_label_suffix = f" [{1/GEO_COEF:.0e}m]"
         time_label_suffix = f" [{1/TIME_COEF:.0e}s]"
 
@@ -244,6 +236,7 @@ class PFPINN(torch.nn.Module):
         return fig, axes, acc
 
     def plot_samplings(self, geotime, bcdata, icdata, anchors):
+        # plot the sampling points
         geotime = geotime.detach().cpu().numpy()
         bcdata = bcdata.detach().cpu().numpy()
         icdata = icdata.detach().cpu().numpy()
@@ -293,10 +286,11 @@ class PFPINN(torch.nn.Module):
         return fig, ax
 
     def compute_weight(self, residuals, method, batch_size, return_ntk_info=False):
+        # compute the weight of each loss term using ntk-based method
         traces = []
         jacs = []
         for res in residuals:
-            if method == "random":
+            if method == "random":  # random-batch technique
                 if batch_size < len(res):
                     jac = self.compute_jacobian(res[
                         np.random.randint(0, len(res), batch_size)
@@ -308,7 +302,7 @@ class PFPINN(torch.nn.Module):
                     trace = self.compute_ntk(jac, compute='trace').item()
                     traces.append(trace / len(res))
 
-            elif method == "topres":
+            elif method == "topres":  # compute the weight using the points with top residuals
                 if batch_size < len(res):
                     jac = self.compute_jacobian(res[:batch_size])
                     trace = self.compute_ntk(jac, compute='trace').item()
@@ -318,7 +312,7 @@ class PFPINN(torch.nn.Module):
                     trace = self.compute_ntk(jac, compute='trace').item()
                     traces.append(trace / len(res))
 
-            elif method == "mini":
+            elif method == "mini":  # compute the weight using mini-batch technique
                 trace = 0
                 for i in range(0, len(res), batch_size):
                     jac = self.compute_jacobian(res[
