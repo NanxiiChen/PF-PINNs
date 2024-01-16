@@ -1,4 +1,4 @@
-# PittingCorrosionPINN
+# PF-PINNs
 
 ## Configs
 
