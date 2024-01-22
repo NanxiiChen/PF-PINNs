@@ -246,11 +246,13 @@ for epoch in range(EPOCHS):
         + bc_weight * bc_loss \
         + ac_weight * ac_loss \
         + ch_weight * ch_loss
-    losses.backward()
-    opt.step()
 
     if epoch % (BREAK_INTERVAL) == 0:
         writer.add_scalar("loss/total", losses, epoch)
+
+    opt.zero_grad()
+    losses.backward()
+    opt.step()
 
 
 # torch.save(net.state_dict(), "model.pt")
