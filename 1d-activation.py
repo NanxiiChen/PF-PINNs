@@ -175,9 +175,6 @@ RAR_BASE_SHAPE = config.getint("TRAIN", "RAR_BASE_SHAPE")
 RAR_SHAPE = config.getint("TRAIN", "RAR_SHAPE")
 
 for epoch in range(EPOCHS):
-    if epoch == 200:
-        opt = torch.optim.LBFGS(net.parameters(), lr=5e-4)
-        print("Change optimizer to LBFGS")
     net.train()
     if epoch % BREAK_INTERVAL == 0:
         geotime, bcdata, icdata = sampler.resample(GEOTIME_SHAPE, BCDATA_SHAPE,
@@ -245,28 +242,12 @@ for epoch in range(EPOCHS):
         writer.add_figure("fig/predict", fig, epoch)
         writer.add_scalar("acc", acc, epoch)
 
-    # losses = ic_weight * ic_loss \
-    #     + bc_weight * bc_loss \
-    #     + ac_weight * ac_loss \
-    #     + ch_weight * ch_loss
-
-    if epoch >= 200:
-        def closure():
-            opt.zero_grad()
-            losses = ic_weight * ic_loss \
-                + bc_weight * bc_loss \
-                + ac_weight * ac_loss \
-                + ch_weight * ch_loss
-            losses.backward(retain_graph=True)
-            return losses
-        opt.step(closure)
-    else:
-        losses = ic_weight * ic_loss \
-            + bc_weight * bc_loss \
-            + ac_weight * ac_loss \
-            + ch_weight * ch_loss
-        losses.backward()
-        opt.step()
+    losses = ic_weight * ic_loss \
+        + bc_weight * bc_loss \
+        + ac_weight * ac_loss \
+        + ch_weight * ch_loss
+    losses.backward()
+    opt.step()
 
     if epoch % (BREAK_INTERVAL) == 0:
         writer.add_scalar("loss/total", losses, epoch)
