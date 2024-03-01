@@ -48,8 +48,10 @@ class PFPINN(torch.nn.Module):
     def make_layers(self):
         layers = []
         for i in range(len(self.sizes) - 1):
-            layers.append((f"layer{i}",
-                           torch.nn.Linear(self.sizes[i], self.sizes[i + 1])))
+
+            linear_layer = torch.nn.Linear(self.sizes[i], self.sizes[i + 1])
+            torch.nn.init.xavier_uniform_(linear_layer.weight)
+            layers.append((f"linear{i}", linear_layer))
             if i != len(self.sizes) - 2:
                 layers.append((f"act{i}", self.act()))
         return OrderedDict(layers)
