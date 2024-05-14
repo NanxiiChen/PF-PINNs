@@ -171,3 +171,17 @@ RESUME = None
 ADAPTIVE_SAMPLING = "rar"
 FORWARD_BATCH_SIZE = 2000
 ```
+
+
+## Citation
+```bibtex
+@misc{chenPfPinnsPhysicsInformedNeural2024,
+  title = {Pf-Pinns: Physics-Informed Neural Networks for Solving Coupled Allen-Cahn and Cahn-Hilliard Phase Field Equations},
+  author = {Chen, Nanxi and Lucarini, Sergio and Ma, Rujin and Chen, Airong and Cui, Chuanjie},
+  year = {2024},
+  month = jan,
+  doi = {10.2139/ssrn.4761824},
+  keywords = {/unread},
+}
+
+```

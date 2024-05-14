@@ -195,7 +195,7 @@ for epoch in range(EPOCHS):
             geotime, bcdata,
             icdata, anchors)
         # plt.savefig(f"./runs/{now}/sampling-{epoch}.png",
-        #             # bbox_inches='tight', dpi=300)
+        #              bbox_inches='tight', dpi=300)
         writer.add_figure("sampling", fig, epoch)
 
     ac_residual, ch_residual = net.net_pde(data)
