@@ -40,13 +40,13 @@ This repository contains the code for the paper "Pf-Pinns: Physics-Informed Neur
 ### NTK-based adaptive weighting strategy
 
 Jacobi matrix for the residuals w.r.t. the network parameters:
-$$\boldsymbol{J}_\text{AC}(s) = \frac{\partial \boldsymbol{\hat{\mathcal{G}}}_\text{AC}(s)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{J}_\text{AC}(s) = \frac{\partial \boldsymbol{\hat{{G}}}_\text{AC}(s)}{\partial \boldsymbol{\theta}}$$
 
-$$\boldsymbol{J}_\text{CH}(s) = \frac{\partial \boldsymbol{\hat{\mathcal{G}}}_\text{CH}(s)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{J}_\text{CH}(s) = \frac{\partial \boldsymbol{\hat{{G}}}_\text{CH}(s)}{\partial \boldsymbol{\theta}}$$
 
-$$\boldsymbol{J}_\text{IC}(s) = \frac{\partial \boldsymbol{\hat{\mathcal{I}}}(s)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{J}_\text{IC}(s) = \frac{\partial \boldsymbol{\hat{{I}}}(s)}{\partial \boldsymbol{\theta}}$$
 
-$$\boldsymbol{J}_\text{BC}(s) = \frac{\partial \boldsymbol{\hat{\mathcal{B}}}(s)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{J}_\text{BC}(s) = \frac{\partial \boldsymbol{\hat{{B}}}(s)}{\partial \boldsymbol{\theta}}$$
 
 NTK matrices corresponding to the residuals:
 $$\boldsymbol K_j = \boldsymbol J_j(s)\boldsymbol J_j(s)^T$$
