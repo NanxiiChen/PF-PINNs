@@ -40,9 +40,9 @@ This repository contains the code for the paper "Pf-Pinns: Physics-Informed Neur
 ### NTK-based adaptive weighting strategy
 
 Jacobi matrix for the residuals w.r.t. the network parameters:
-$$\boldsymbol{J}_\text{AC}(s) = \frac{\partial {\hat{\boldsymbol{G}}}_\text{AC}(s)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{J}_\text{AC}(s) = \frac{\partial {\hat{\boldsymbol{G}}}\text{AC}(s)}{\partial \boldsymbol{\theta}}$$
 
-$$\boldsymbol{J}_\text{CH}(s) = \frac{\partial {\hat{\boldsymbol{G}}}_\text{CH}(s)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{J}_\text{CH}(s) = \frac{\partial {\hat{\boldsymbol{G}}}\text{CH}(s)}{\partial \boldsymbol{\theta}}$$
 
 $$\boldsymbol{J}_\text{IC}(s) = \frac{\partial {\hat{\boldsymbol{I}}}(s)}{\partial \boldsymbol{\theta}}$$
 
