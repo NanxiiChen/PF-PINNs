@@ -28,7 +28,7 @@ This repository contains the code for the paper "Pf-Pinns: Physics-Informed Neur
 <img src="./img/2d-diffusion-baseline-fields-4.png" width="600">
 
 
-## Methods
+## Methodology
 
 ### Local refinement for initial conditions
 
@@ -37,6 +37,15 @@ This repository contains the code for the paper "Pf-Pinns: Physics-Informed Neur
 <img src="./img/1d-ic-samplings.png" width="500">
 <img src="./img/2d-ic-samplings.png" width="500">
 
+### NTK-based adaptive weighting strategy
+
+Jacobi matrix for the residuals w.r.t. the network parameters:
+$$
+\bm J_\text{AC}(s) = \frac{\partial \bm{\hat{\mathcal{G}}}_\text{AC}(s)}{\partial \bm{\theta}}\\
+\bm J_\text{CH}(s) = \frac{\partial \bm{\hat{\mathcal{G}}}_\text{CH}(s)}{\partial \bm{\theta}}\\
+\bm J_\text{IC}(s) = \frac{\partial \bm{\hat{\mathcal{I}}}(s)}{\partial \bm{\theta}}\\
+\bm J_\text{BC}(s) = \frac{\partial \bm{\hat{\mathcal{B}}}(s)}{\partial \bm{\theta}}\\
+$$
 
 ## Configs
 
