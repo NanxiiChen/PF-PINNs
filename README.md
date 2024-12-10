@@ -235,13 +235,17 @@ FORWARD_BATCH_SIZE = 2000
 
 ## Citation
 ```bibtex
-@misc{chenPfPinnsPhysicsInformedNeural2024,
-  title = {Pf-Pinns: Physics-Informed Neural Networks for Solving Coupled Allen-Cahn and Cahn-Hilliard Phase Field Equations},
-  author = {Chen, Nanxi and Lucarini, Sergio and Ma, Rujin and Chen, Airong and Cui, Chuanjie},
-  year = {2024},
-  month = jan,
-  doi = {10.2139/ssrn.4761824},
-  keywords = {/unread},
+@article{chen4761824pf,
+  title={Pf-Pinns: Physics-Informed Neural Networks for Solving Coupled Allen-Cahn and Cahn-Hilliard Phase Field Equations},
+  author={Chen, Nanxi and Lucarini, Sergio and Ma, Rujin and Chen, Airong and Cui, Chuanjie},
+  journal={Available at SSRN 4761824}
+},
+@incollection{chen2024pc,
+  title={PC-PINNs: Physics-informed neural networks for solving the phase-field model of pitting corrosion},
+  author={Chen, Nanxi and Ma, Rujin and Chen, Airong and Cui, Chuanjie},
+  booktitle={Bridge Maintenance, Safety, Management, Digitalization and Sustainability},
+  pages={244--252},
+  year={2024},
+  publisher={CRC Press}
 }
-
 ```
