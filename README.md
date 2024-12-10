@@ -1,5 +1,43 @@
 # PF-PINNs
 
+This repository contains the code for the paper "Pf-Pinns: Physics-Informed Neural Networks for Solving Coupled Allen-Cahn and Cahn-Hilliard Phase Field Equations". We introduce a physics-informed neural network (PINN) framework for solving coupled Allen-Cahn and Cahn-Hilliard phase field equations.
+
+## Overview
+
+![](./img/pfpinn-schematic.png)
+
+
+## Representative Results
+
+### 1d corrosion 
+
+<!-- ![](./img/1d-activation-baseline-fields.png) -->
+<img src="./img/1d-activation-baseline-fields.png" width="600">
+
+### 2d corrosion
+<!-- ![](./img/2d-diffusion-baseline-fields-0.png)
+![](./img/2d-diffusion-baseline-fields-1.png)
+![](./img/2d-diffusion-baseline-fields-2.png)
+![](./img/2d-diffusion-baseline-fields-3.png)
+![](./img/2d-diffusion-baseline-fields-4.png) -->
+
+<img src="./img/2d-diffusion-baseline-fields-0.png" width="600">
+<img src="./img/2d-diffusion-baseline-fields-1.png" width="600">
+<img src="./img/2d-diffusion-baseline-fields-2.png" width="600">
+<img src="./img/2d-diffusion-baseline-fields-3.png" width="600">
+<img src="./img/2d-diffusion-baseline-fields-4.png" width="600">
+
+
+## Methods
+
+### Local refinement for initial conditions
+
+<!-- ![](./img/1d-ic-samplings.png)
+![](./img/2d-ic-samplings.png) -->
+<img src="./img/1d-ic-samplings.png" width="500">
+<img src="./img/2d-ic-samplings.png" width="500">
+
+
 ## Configs
 
 ### 1d-activation driven
@@ -43,7 +81,7 @@ ADAPTIVE_SAMPLING = "rar"
 LOG_NAME = "1da-case-4-5"
 ```
 
-### 1d-dissolution driven
+### 1d-diffusion driven
  
 ```ini
 
@@ -58,7 +96,7 @@ CLE = 5100/1.43e5
 
 [TRAIN]
 DIM = 1
-DRIVEN = "dissolution"
+DRIVEN = "diffusion"
 GEO_COEF = 1e4
 TIME_COEF = 1e-2
 TIME_SPAN = (0, 1)
@@ -83,7 +121,7 @@ RESUME = None
 ADAPTIVE_SAMPLING = "rar"
 ```
 
-### 2d-dissolution 
+### 2d-diffusion 
 
 ```ini
 [PARAM]
@@ -97,7 +135,7 @@ CLE = 5100/1.43e5
 
 [TRAIN]
 DIM = 1
-DRIVEN = "dissolution"
+DRIVEN = "diffusion"
 GEO_COEF = 1e4
 TIME_COEF = 1e-2
 TIME_SPAN = (0, 0.5)
@@ -127,7 +165,7 @@ ADAPTIVE_SAMPLING = "rar"
 FORWARD_BATCH_SIZE = 2000
 ```
 
-### 2d-dissolution-2pits
+### 2d-diffusion-2pits
 
 ```ini
 [PARAM]
@@ -141,7 +179,7 @@ CLE = 5100/1.43e5
 
 [TRAIN]
 DIM = 1
-DRIVEN = "dissolution"
+DRIVEN = "diffusion"
 GEO_COEF = 1e4
 TIME_COEF = 1e-2
 TIME_SPAN = (0, 0.2)
