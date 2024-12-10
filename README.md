@@ -41,9 +41,9 @@ This repository contains the code for the paper "Pf-Pinns: Physics-Informed Neur
 
 Jacobi matrix for the residuals w.r.t. the network parameters:
 
-$$\boldsymbol{J}_\text{AC}(s) = \frac{\partial {\hat{\boldsymbol{\mathcal{G}}}}_{\text{AC}}(s)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{J}_\text{AC}(s) = \frac{\partial {\hat{\boldsymbol{\mathcal{G}}}}(s)_{\text{AC}}}{\partial \boldsymbol{\theta}}$$
 
-$$\boldsymbol{J}_\text{CH}(s) = \frac{\partial {\hat{\boldsymbol{\mathcal{G}}}}_{\text{CH}}(s)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{J}_\text{CH}(s) = \frac{\partial {\hat{\boldsymbol{\mathcal{G}}}}(s)_{\text{CH}}}{\partial \boldsymbol{\theta}}$$
 
 $$\boldsymbol{J}_\text{IC}(s) = \frac{\partial {\hat{\boldsymbol{\mathcal{I}}}}(s)}{\partial \boldsymbol{\theta}}$$
 
