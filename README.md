@@ -40,19 +40,22 @@ This repository contains the code for the paper "Pf-Pinns: Physics-Informed Neur
 ### NTK-based adaptive weighting strategy
 
 Jacobi matrix for the residuals w.r.t. the network parameters:
-$$\bm J_\text{AC}(s) = \frac{\partial \bm{\hat{\mathcal{G}}}_\text{AC}(s)}{\partial \bm{\theta}}\\
-\bm J_\text{CH}(s) = \frac{\partial \bm{\hat{\mathcal{G}}}_\text{CH}(s)}{\partial \bm{\theta}}\\
-\bm J_\text{IC}(s) = \frac{\partial \bm{\hat{\mathcal{I}}}(s)}{\partial \bm{\theta}}\\
-\bm J_\text{BC}(s) = \frac{\partial \bm{\hat{\mathcal{B}}}(s)}{\partial \bm{\theta}}$$
+$$\boldsymbol J_\text{AC}(s) = \frac{\partial \boldsymbol{\hat{\mathcal{G}}}_\text{AC}(s)}{\partial \boldsymbol{\theta}}\\
+\boldsymbol J_\text{CH}(s) = \frac{\partial \boldsymbol{\hat{\mathcal{G}}}_\text{CH}(s)}{\partial \boldsymbol{\theta}}\\
+\boldsymbol J_\text{IC}(s) = \frac{\partial \boldsymbol{\hat{\mathcal{I}}}(s)}{\partial \boldsymbol{\theta}}\\
+\boldsymbol J_\text{BC}(s) = \frac{\partial \boldsymbol{\hat{\mathcal{B}}}(s)}{\partial \boldsymbol{\theta}}$$
+
 NTK matrices corresponding to the residuals:
-$$\bm K_j = \bm J_j(s)\bm J_j(s)^T$$
+$$\boldsymbol K_j = \boldsymbol J_j(s)\boldsymbol J_j(s)^T$$
+
 Weighting coefficients based on the random-batched NTK matrices:
-$$w_j(s) = \frac{b_{j}}{\text{tr}(\bm K_{j, r}(s))}\left[
-    \frac{\text{tr}(\bm K_{\text{AC}, r}(s))}{b_{\text{AC}}}
-    + \frac{\text{tr}(\bm K_{\text{CH}, r}(s))}{b_{\text{CH}}}
-    + \frac{\text{tr}(\bm K_{\text{IC}, r}(s))}{b_{\text{IC}}}
-    + \frac{\text{tr}(\bm K_{\text{BC}, r}(s))}{b_{\text{BC}}}
+$$w_j(s) = \frac{b_{j}}{\text{tr}(\boldsymbol K_{j, r}(s))}\left[
+    \frac{\text{tr}(\boldsymbol K_{\text{AC}, r}(s))}{b_{\text{AC}}}
+    + \frac{\text{tr}(\boldsymbol K_{\text{CH}, r}(s))}{b_{\text{CH}}}
+    + \frac{\text{tr}(\boldsymbol K_{\text{IC}, r}(s))}{b_{\text{IC}}}
+    + \frac{\text{tr}(\boldsymbol K_{\text{BC}, r}(s))}{b_{\text{BC}}}
     \right]$$
+
 where $K_{j, r}$ is the NTK matrix of randomly sampled points set $\mathcal{S}_{j, b_j}$, $b_j$ is the batch size for the $j$-th residual.
 
 
