@@ -49,12 +49,7 @@ NTK matrices corresponding to the residuals:
 $$\boldsymbol K_j = \boldsymbol J_j(s)\boldsymbol J_j(s)^T$$
 
 Weighting coefficients based on the random-batched NTK matrices:
-$$w_j(s) = \frac{b_{j}}{\text{tr}(\boldsymbol K_{j, r}(s))}\left[
-    \frac{\text{tr}(\boldsymbol K_{\text{AC}, r}(s))}{b_{\text{AC}}}
-    + \frac{\text{tr}(\boldsymbol K_{\text{CH}, r}(s))}{b_{\text{CH}}}
-    + \frac{\text{tr}(\boldsymbol K_{\text{IC}, r}(s))}{b_{\text{IC}}}
-    + \frac{\text{tr}(\boldsymbol K_{\text{BC}, r}(s))}{b_{\text{BC}}}
-    \right]$$
+$$w_j(s) = \frac{b_{j}}{\text{tr}(\boldsymbol K_{j, r}(s))}\left[\frac{\text{tr}(\boldsymbol K_{\text{AC}, r}(s))}{b_{\text{AC}}}+ \frac{\text{tr}(\boldsymbol K_{\text{CH}, r}(s))}{b_{\text{CH}}}+ \frac{\text{tr}(\boldsymbol K_{\text{IC}, r}(s))}{b_{\text{IC}}}+ \frac{\text{tr}(\boldsymbol K_{\text{BC}, r}(s))}{b_{\text{BC}}}\right]$$
 
 where $K_{j, r}$ is the NTK matrix of randomly sampled points set $\mathcal{S}_{j, b_j}$, $b_j$ is the batch size for the $j$-th residual.
 
