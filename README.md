@@ -60,6 +60,8 @@ $$w_j(s) = \frac{b_{j}}{\text{tr}(\boldsymbol K_{j, r}(s))}\left[\frac{\text{tr}
 where $K_{j, r}$ is the NTK matrix of randomly sampled points set $\mathcal{S}_{j, b_j}$, $b_j$ is the batch size for the $j$-th residual.
 
 
+<img src="./img/1d-activation-losses.png" width=800>
+
 ## Configs
 
 ### 1d-activation driven
