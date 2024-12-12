@@ -338,3 +338,16 @@ class PFPINN(torch.nn.Module):
         if return_ntk_info:
             return traces.sum() / traces, jacs
         return traces.sum() / traces
+
+    def compute_gradient_weight(self, losses):
+        
+        grads = np.zeros(len(losses))
+        for idx, loss in enumerate(losses):
+            self.zero_grad()
+            grad = self.gradient(loss)
+            grads[idx] = torch.sqrt(torch.sum(grad**2)).item()
+
+        # grads = np.clip(grads, 1e-8, 1e8)
+        weights = np.sum(grads) / grads
+        # weights = np.clip(weights, 1e-8, 1e8)
+        return weights
