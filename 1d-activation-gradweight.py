@@ -19,7 +19,8 @@ LOG_NAME = config.get("TRAIN", "LOG_NAME").strip('"')
 now = LOG_NAME
 if LOG_NAME == "None":
     now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-writer = SummaryWriter(log_dir="/root/tf-logs/" + now)
+saveroot = "runs/"
+writer = SummaryWriter(log_dir=saveroot + now)
 
 
 # Define the sampler
@@ -206,7 +207,6 @@ for epoch in range(EPOCHS):
 
     if epoch % BREAK_INTERVAL == 0:
 
-
         print(f"epoch: {epoch}, "
               f"ic_loss: {ic_loss.item():.4e}, "
               f"bc_loss: {bc_loss.item():.4e}, "
@@ -218,20 +218,20 @@ for epoch in range(EPOCHS):
         writer.add_scalar("loss/ac", ac_loss, epoch)
         writer.add_scalar("loss/ch", ch_loss, epoch)
 
-
     if epoch % BREAK_INTERVAL == 0:
         ac_weight, ch_weight, bc_weight, ic_weight = net.compute_gradient_weight(
-                [ac_loss, ch_loss, bc_loss, ic_loss],)
-        
+            [ac_loss, ch_loss, bc_loss, ic_loss],)
+
         writer.add_scalar("weight/ic", ic_weight, epoch)
         writer.add_scalar("weight/bc", bc_weight, epoch)
         writer.add_scalar("weight/ac", ac_weight, epoch)
         writer.add_scalar("weight/ch", ch_weight, epoch)
-        
+
         fig, ax, acc = net.plot_predict(ref_sol=ref_sol, epoch=epoch)
 
-        # if epoch % (BREAK_INTERVAL) == 0:
-        #     torch.save(net.state_dict(), f"/root/tf-logs/{now}/model-{epoch}.pt")
+        if epoch % (BREAK_INTERVAL) == 0:
+            torch.save(net.state_dict(),
+                       f"{saveroot}{now}/model-{epoch}.pt")
 
         writer.add_figure("fig/predict", fig, epoch)
         writer.add_scalar("acc", acc, epoch)
@@ -250,5 +250,5 @@ for epoch in range(EPOCHS):
 
 
 # torch.save(net.state_dict(), "model.pt")
-torch.save(net.state_dict(), "model.pt")
-print("Done")
+# torch.save(net.state_dict(), "model.pt")
+# print("Done")

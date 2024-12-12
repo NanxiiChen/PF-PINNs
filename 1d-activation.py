@@ -19,7 +19,8 @@ LOG_NAME = config.get("TRAIN", "LOG_NAME").strip('"')
 now = LOG_NAME
 if LOG_NAME == "None":
     now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-writer = SummaryWriter(log_dir="/root/tf-logs/" + now)
+saveroot = "runs/"
+writer = SummaryWriter(log_dir=saveroot + now)
 
 
 # Define the sampler
@@ -234,7 +235,8 @@ for epoch in range(EPOCHS):
         fig, ax, acc = net.plot_predict(ref_sol=ref_sol, epoch=epoch)
 
         if epoch % (BREAK_INTERVAL) == 0:
-            torch.save(net.state_dict(), f"/root/tf-logs/{now}/model-{epoch}.pt")
+            torch.save(net.state_dict(),
+                       f"{saveroot}{now}/model-{epoch}.pt")
         # plt.savefig(f"./runs/{now}/fig-{epoch}.png",
         #             bbox_inches='tight', dpi=300)
         # ! Saving figure is too slow
