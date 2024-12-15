@@ -60,6 +60,33 @@ $$w_j(s) = \frac{b_{j}}{\text{tr}(\boldsymbol K_{j, r}(s))}\left[\frac{\text{tr}
 where $K_{j, r}$ is the NTK matrix of randomly sampled points set $\mathcal{S}_{j, b_j}$, $b_j$ is the batch size for the $j$-th residual.
 
 
+Code snippet for the computation of the NTK matrices:
+
+```python
+#...
+  def compute_jacobian(self, output):
+      output = output.reshape(-1)
+      grads = torch.autograd.grad(
+          output,
+          list(self.parameters())[:-1],
+          (torch.eye(output.shape[0]).to(self.device),),
+          is_grads_batched=True, retain_graph=True
+      )
+      return torch.cat([grad.flatten().reshape(len(output), -1) for grad in grads], 1)
+
+  def compute_ntk(self, jac, compute='trace'):
+      if compute == 'full':
+          return torch.einsum('Na,Ma->NM', jac, jac)
+      elif compute == 'diag':
+          return torch.einsum('Na,Na->N', jac, jac)
+      elif compute == 'trace':
+          return torch.einsum('Na,Na->', jac, jac)
+      else:
+          raise ValueError('compute must be one of "full",'
+                            + '"diag", or "trace"')
+#...
+```
+
 <img src="./img/1d-activation-losses.png" width=800>
 
 ## Configs

@@ -157,10 +157,12 @@ class PFPINN(torch.nn.Module):
 
     def compute_jacobian(self, output):
         output = output.reshape(-1)
-
-        grads = torch.autograd.grad(output, list(self.parameters())[:-1], (torch.eye(output.shape[0]).to(
-            self.device),), is_grads_batched=True, retain_graph=True)
-
+        grads = torch.autograd.grad(
+            output,
+            list(self.parameters())[:-1],
+            (torch.eye(output.shape[0]).to(self.device),),
+            is_grads_batched=True, retain_graph=True
+        )
         return torch.cat([grad.flatten().reshape(len(output), -1) for grad in grads], 1)
 
     def compute_ntk(self, jac, compute='trace'):
@@ -340,7 +342,7 @@ class PFPINN(torch.nn.Module):
         return traces.sum() / traces
 
     def compute_gradient_weight(self, losses):
-        
+
         grads = np.zeros(len(losses))
         for idx, loss in enumerate(losses):
             self.zero_grad()
