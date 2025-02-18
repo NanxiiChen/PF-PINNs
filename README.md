@@ -264,10 +264,16 @@ FORWARD_BATCH_SIZE = 2000
 
 ## Citation
 ```bibtex
-@article{chen4761824pf,
-  title={Pf-Pinns: Physics-Informed Neural Networks for Solving Coupled Allen-Cahn and Cahn-Hilliard Phase Field Equations},
-  author={Chen, Nanxi and Lucarini, Sergio and Ma, Rujin and Chen, Airong and Cui, Chuanjie},
-  journal={Available at SSRN 4761824}
+@article{CHEN2025113843,
+title = {PF-PINNs: Physics-informed neural networks for solving coupled Allen-Cahn and Cahn-Hilliard phase field equations},
+journal = {Journal of Computational Physics},
+volume = {529},
+pages = {113843},
+year = {2025},
+issn = {0021-9991},
+doi = {https://doi.org/10.1016/j.jcp.2025.113843},
+url = {https://www.sciencedirect.com/science/article/pii/S0021999125001263},
+author = {Nanxi Chen and Sergio Lucarini and Rujin Ma and Airong Chen and Chuanjie Cui},
 },
 @incollection{chen2024pc,
   title={PC-PINNs: Physics-informed neural networks for solving the phase-field model of pitting corrosion},
